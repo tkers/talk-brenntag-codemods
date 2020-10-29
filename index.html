@@ -756,10 +756,193 @@ hue-6-2: #e6c07b
 <h3 id="-tijn-kersjes">🙋‍♂️ Tijn Kersjes</h3>
 </section>
   </div>
-  <div class="slide hidden  dark" id="slide-2">
+  <div class="slide hidden" id="slide-2">
+    <section class="slide-content"><h3 id="what-are-codemods-">What are codemods?</h3>
+<ul>
+<li>Also called program <strong>transformations</strong></li>
+<li>Metaprogramming<ul>
+<li>Automatise programming / refactoring</li>
+</ul>
+</li>
+<li>Can be applied to your entire code base</li>
+<li>Modifies program using its <strong>AST</strong></li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-3">
+    <section class="slide-content"><h1 style="margin-top: 4em">
+code ➡ ✨ ➡ code
+</h1></section>
+  </div>
+  <div class="slide hidden" id="slide-4">
+    <section class="slide-content"><h3 id="a-simple-scenario">A simple scenario</h3>
+<p>Function name is updated:</p>
+<pre><code class="lang-diff">export {
+<span class="hljs-deletion">-  foo</span>
+<span class="hljs-addition">+  bar</span>
+}
+</code></pre>
+<p>Find and replace 💪</p>
+<pre><code class="lang-diff">import {
+<span class="hljs-deletion">-  foo</span>
+<span class="hljs-addition">+  bar</span>
+} from './myLib.js'
+
+// ...
+
+<span class="hljs-deletion">- foo()</span>
+<span class="hljs-addition">+ bar()</span>
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-5">
+    <section class="slide-content"><h3 id="another-simple-scenario">Another simple scenario</h3>
+<p>Old React code:</p>
+<pre><code class="lang-js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyComponent</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
+  <span class="hljs-keyword">constructor</span>(props) {
+    <span class="hljs-keyword">super</span>(props);
+    <span class="hljs-keyword">this</span>.state = { <span class="hljs-attr">isOpen</span>: <span class="hljs-literal">true</span> };
+  }
+}
+</code></pre>
+<p>Let&#39;s modernise it to this:</p>
+<pre><code class="lang-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MyComponent</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> [isOpen, setIsOpen] = useState(<span class="hljs-literal">true</span>);
+}
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-6">
+    <section class="slide-content"><h3 id="another-simple-scenario-or-is-it-">Another simple scenario (or is it? 😰)</h3>
+<p>Old React code:</p>
+<pre><code class="lang-diff"><span class="hljs-deletion">- class MyComponent extends React.Component {</span>
+<span class="hljs-deletion">-   constructor(props) {</span>
+<span class="hljs-deletion">-     super(props);</span>
+<span class="hljs-deletion">-     this.state = { isOpen: true };</span>
+<span class="hljs-deletion">-   }</span>
+  }
+</code></pre>
+<p>Let&#39;s modernise it to this:</p>
+<pre><code class="lang-diff"><span class="hljs-addition">+ function MyComponent() {</span>
+<span class="hljs-addition">+   const [isOpen, setIsOpen] = useState(true);</span>
+  }
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-7">
+    <section class="slide-content"><h3 id="code-is-not-just-text">Code is not just text</h3>
+<p>No access to the <strong>structure</strong> of your code:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">import</span> { foo <span class="hljs-keyword">as</span> fooA } <span class="hljs-keyword">from</span> <span class="hljs-string">"./myLib.js"</span>;
+<span class="hljs-keyword">import</span> { foo <span class="hljs-keyword">as</span> fooB } <span class="hljs-keyword">from</span> <span class="hljs-string">"./otherLib.js"</span>;
+
+obj.foo = <span class="hljs-number">42</span>;
+
+sendMessage(<span class="hljs-string">"foo"</span>);
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-8">
+    <section class="slide-content"><h3 id="abstract-syntax-tree">Abstract Syntax Tree</h3>
+<p><img src="ast.png" alt="ast"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-9">
+    <section class="slide-content"><h3 id="abstract-syntax-tree">Abstract Syntax Tree</h3>
+<ul>
+<li><strong>ESLint</strong> reads (and reports issues)</li>
+<li><strong>Prettier</strong> reprints (changing whitespaces)</li>
+<li><strong>Babel</strong> transforms (JSX, TS)</li>
+<li>...</li>
+</ul>
+<p><a href="https://astexplorer.net">astexplorer.net</a></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-10">
+    <section class="slide-content"><h3 id="jscodeshift">JSCodeshift</h3>
+<ul>
+<li>AST transformation tool</li>
+<li>Wrapper around <strong>Recast</strong></li>
+<li>Update React APIs</li>
+</ul>
+<pre><code class="lang-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transform</span>(<span class="hljs-params">file, api</span>) </span>{
+  <span class="hljs-keyword">const</span> j = api.jscodeshift;
+  <span class="hljs-keyword">const</span> root = j(file.source);
+
+  <span class="hljs-comment">// ...transform root</span>
+
+  <span class="hljs-keyword">return</span> root.toSource();
+}
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-11">
+    <section class="slide-content"><h3 id="hooks-transformation">Hooks transformation</h3>
+<pre><code class="lang-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transformer</span>(<span class="hljs-params">file, api</span>) </span>{
+  <span class="hljs-keyword">const</span> j = api.jscodeshift;
+
+  <span class="hljs-keyword">return</span> j(file.source)
+    .find(j.ClassDeclaration, {
+      <span class="hljs-attr">superClass</span>: {
+        <span class="hljs-attr">object</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">"React"</span> },
+        <span class="hljs-attr">property</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">"Component"</span> },
+      },
+    })
+    .forEach(<span class="hljs-function">(<span class="hljs-params">path</span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> component = j(path);
+      <span class="hljs-keyword">const</span> name = component.get(<span class="hljs-string">"id"</span>).value;
+      <span class="hljs-keyword">const</span> initialState = component
+        .find(j.MethodDefinition, { <span class="hljs-attr">kind</span>: <span class="hljs-string">"constructor"</span> })
+        .find(j.AssignmentExpression, {
+          <span class="hljs-attr">left</span>: { <span class="hljs-attr">property</span>: { <span class="hljs-attr">name</span>: <span class="hljs-string">"state"</span> } },
+        })
+        .get(<span class="hljs-string">"right"</span>).value;
+
+      <span class="hljs-keyword">const</span> body = j.blockStatement([
+        j.variableDeclaration(<span class="hljs-string">"const"</span>, [
+          j.variableDeclarator(
+            j.arrayPattern([j.identifier(<span class="hljs-string">"state"</span>), j.identifier(<span class="hljs-string">"setState"</span>)]),
+            j.callExpression(j.identifier(<span class="hljs-string">"useState"</span>), [initialState])
+          ),
+        ]),
+      ]);
+      <span class="hljs-keyword">const</span> func = j.functionDeclaration(name, [], body, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);
+      component.replaceWith(func);
+    })
+    .toSource();
+}
+</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-12">
+    <section class="slide-content"><h3 id="some-important-painpoints">Some important painpoints</h3>
+<ul>
+<li>Documentation is scarce</li>
+<li>JSCodeshift API a bit confusing</li>
+<li>JavaScript is messy<ul>
+<li>A lot of edge cases</li>
+<li>Focus on the 99%</li>
+</ul>
+</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-13">
+    <section class="slide-content"><h3 id="super-fast-refactoring-">Super fast refactoring 🚀</h3>
+<ul>
+<li>Wow-factor</li>
+<li>Massive codebase changes (atomically!)</li>
+<li>Reusable transformations</li>
+<li>Postpone design decisions</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden  dark" id="slide-14">
     <section class="slide-content"><h1 id="that-s-it-for-today-">That&#39;s it for today 👋</h1>
 <ul>
 <li><a href="https://astexplorer.net">astexplorer.net</a></li>
+<li><a href="https://github.com/facebook/jscodeshift">facebook/jscodeshift</a></li>
+<li><a href="https://github.com/reactjs/react-codemod">reactjs/react-codemod</a></li>
+<li><a href="https://github.com/cpojer/js-codemod">cpojer/js-codemod</a></li>
 </ul>
 <p><img src="bg.jpg" alt="background"></p>
 </section>
